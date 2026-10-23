@@ -2,7 +2,7 @@ package com.projJogosDigitais.Jogo.entities;
 
 import com.badlogic.gdx.math.Rectangle;
 
-/** Raquete controlada pelo jogador (teclado ou potenciometro). */
+/** Raquete controlada pelo jogador (teclado ou potenciômetro). */
 public class Paddle {
     public final Rectangle bounds;
 
@@ -18,6 +18,7 @@ public class Paddle {
         return bounds.x + bounds.width / 2f;
     }
 
+    /** Mantém a raquete dentro dos limites horizontais do mundo. */
     public void clamp(float worldWidth) {
         if (bounds.x < 0) bounds.x = 0;
         if (bounds.x + bounds.width > worldWidth) bounds.x = worldWidth - bounds.width;

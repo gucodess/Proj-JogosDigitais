@@ -20,9 +20,10 @@ import com.projJogosDigitais.Jogo.entities.Paddle;
 import com.projJogosDigitais.Jogo.input.KeyboardController;
 import com.projJogosDigitais.Jogo.input.PaddleController;
 
-/** Tela principal de jogo: fisica, colisoes, pontuacao e vidas. */
+/** Tela principal de jogo: física, colisões, pontuação e vidas. */
 public class GameScreen extends ScreenAdapter {
 
+    // Uma cor por linha de blocos.
     private static final Color[] ROW_COLORS = {
             new Color(0.94f, 0.33f, 0.31f, 1f),
             new Color(1f, 0.65f, 0.15f, 1f),
@@ -62,6 +63,7 @@ public class GameScreen extends ScreenAdapter {
         resetBall();
     }
 
+    /** Monta a grade de blocos; as linhas de cima valem mais pontos. */
     private void buildBricks() {
         bricks.clear();
         int cols = GameConfig.BRICK_COLS, rows = GameConfig.BRICK_ROWS;
@@ -80,6 +82,7 @@ public class GameScreen extends ScreenAdapter {
         }
     }
 
+    /** Prende a bola sobre a raquete, aguardando o lançamento. */
     private void resetBall() {
         ball.stuck = true;
         ball.vx = 0f;
@@ -88,6 +91,7 @@ public class GameScreen extends ScreenAdapter {
         ball.y = paddle.bounds.y + paddle.bounds.height + ball.radius;
     }
 
+    /** Lança a bola para cima com um ângulo aleatório a partir da vertical. */
     private void launchBall() {
         ball.stuck = false;
         float angle = MathUtils.random(-30f, 30f); // graus a partir da vertical
@@ -106,12 +110,13 @@ public class GameScreen extends ScreenAdapter {
         }
         if (paused) return;
 
-        // Raquete
+        // Move a raquete conforme a fonte de controle (teclado por enquanto).
         float newCenter = controller.computeCenterX(delta, GameConfig.WORLD_WIDTH, paddle.getCenterX(), paddle.bounds.width);
         paddle.setCenterX(newCenter);
         paddle.clamp(GameConfig.WORLD_WIDTH);
 
         if (ball.stuck) {
+            // Bola acompanha a raquete até o jogador lançar.
             ball.x = paddle.getCenterX();
             ball.y = paddle.bounds.y + paddle.bounds.height + ball.radius;
             if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.justTouched()) {
@@ -123,12 +128,12 @@ public class GameScreen extends ScreenAdapter {
         ball.x += ball.vx * delta;
         ball.y += ball.vy * delta;
 
-        // Paredes
+        // Colisão com as paredes (laterais e topo).
         if (ball.x - ball.radius < 0) { ball.x = ball.radius; ball.vx = -ball.vx; }
         if (ball.x + ball.radius > GameConfig.WORLD_WIDTH) { ball.x = GameConfig.WORLD_WIDTH - ball.radius; ball.vx = -ball.vx; }
         if (ball.y + ball.radius > GameConfig.WORLD_HEIGHT) { ball.y = GameConfig.WORLD_HEIGHT - ball.radius; ball.vy = -ball.vy; }
 
-        // Raquete
+        // Colisão com a raquete: o ângulo de saída depende do ponto de contato.
         Rectangle b = ball.bounds();
         if (ball.vy < 0 && b.overlaps(paddle.bounds)) {
             float rel = MathUtils.clamp((ball.x - paddle.getCenterX()) / (paddle.bounds.width / 2f), -1f, 1f);
@@ -139,7 +144,7 @@ public class GameScreen extends ScreenAdapter {
             ball.y = paddle.bounds.y + paddle.bounds.height + ball.radius;
         }
 
-        // Blocos (um por quadro)
+        // Colisão com os blocos (no máximo um por quadro).
         for (int i = 0; i < bricks.size; i++) {
             Brick brick = bricks.get(i);
             if (!brick.alive) continue;
@@ -148,6 +153,7 @@ public class GameScreen extends ScreenAdapter {
             brick.alive = false;
             score += brick.points;
 
+            // Decide qual eixo refletir comparando a sobreposição em X e em Y.
             float bcx = brick.bounds.x + brick.bounds.width / 2f;
             float bcy = brick.bounds.y + brick.bounds.height / 2f;
             float dx = ball.x - bcx;
@@ -166,7 +172,7 @@ public class GameScreen extends ScreenAdapter {
             break;
         }
 
-        // Bola caiu
+        // Bola caiu abaixo da tela: perde uma vida.
         if (ball.y + ball.radius < 0) {
             lives--;
             if (lives <= 0) {
@@ -177,7 +183,7 @@ public class GameScreen extends ScreenAdapter {
             resetBall();
         }
 
-        // Vitoria
+        // Todos os blocos destruídos: vitória.
         if (allBricksCleared()) {
             game.setScreen(new GameOverScreen(game, true, score, difficulty));
             dispose();
@@ -193,12 +199,12 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void render(float delta) {
-        update(Math.min(delta, 1f / 30f)); // clamp evita tunneling em quedas de FPS
+        update(Math.min(delta, 1f / 30f)); // limita o delta para evitar tunneling em quedas de FPS
 
         ScreenUtils.clear(0.05f, 0.06f, 0.12f, 1f);
         camera.update();
 
-        // Formas
+        // Desenho das formas (blocos, raquete e bola).
         game.shapes.setProjectionMatrix(camera.combined);
         game.shapes.begin(ShapeRenderer.ShapeType.Filled);
         for (int i = 0; i < bricks.size; i++) {
@@ -213,7 +219,7 @@ public class GameScreen extends ScreenAdapter {
         game.shapes.circle(ball.x, ball.y, ball.radius);
         game.shapes.end();
 
-        // HUD
+        // HUD (texto): pontuação, vidas e dificuldade.
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
         game.font.setColor(1f, 0.84f, 0.04f, 1f);

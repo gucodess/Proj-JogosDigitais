@@ -3,7 +3,7 @@ package com.projJogosDigitais.Jogo.entities;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 
-/** Bloco destrutivel. */
+/** Bloco destrutível da grade. */
 public class Brick {
     public final Rectangle bounds;
     public final Color color;

@@ -4,11 +4,17 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.projJogosDigitais.Jogo.Main;
 
-/** Launches the desktop (LWJGL3) application. */
+/** Inicia a aplicacao desktop (LWJGL3). */
 public class Lwjgl3Launcher {
     public static void main(String[] args) {
-        if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
-        createApplication();
+        try {
+            if (StartupHelper.startNewJvmIfRequired()) return; // Garante suporte ao macOS e ajuda no Windows.
+            createApplication();
+        } catch (Throwable t) {
+            // Imprime qualquer erro de inicializacao da aplicacao no console (ex.: falha ao criar a janela/OpenGL).
+            System.err.println("Falha ao iniciar a aplicacao desktop (Breakout Rehab):");
+            t.printStackTrace();
+        }
     }
 
     private static Lwjgl3Application createApplication() {
@@ -18,19 +24,17 @@ public class Lwjgl3Launcher {
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("Breakout Rehab");
-        //// Vsync limits the frames per second to what your hardware can display, and helps eliminate
-        //// screen tearing. This setting doesn't always work on Linux, so the line after is a safeguard.
+        // O Vsync limita os quadros por segundo ao que o hardware consegue exibir e ajuda a eliminar
+        // o tearing (rasgo) da imagem. Esse ajuste nem sempre funciona no Linux, por isso a linha seguinte e uma protecao.
         configuration.useVsync(true);
-        //// Limits FPS to the refresh rate of the currently active monitor, plus 1 to try to match fractional
-        //// refresh rates. The Vsync setting above should limit the actual FPS to match the monitor.
+        // Limita o FPS a taxa de atualizacao do monitor ativo, +1 para tentar casar com taxas fracionarias.
+        // O Vsync acima ja deve limitar o FPS real para acompanhar o monitor.
         configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
-        //// If you remove the above line and set Vsync to false, you can get unlimited FPS, which can be
-        //// useful for testing performance, but can also be very stressful to some hardware.
-        //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
+        // Se remover a linha acima e deixar o Vsync em false, obtem-se FPS ilimitado, util para testes de desempenho,
+        // mas que pode sobrecarregar o hardware e causar tearing.
 
         configuration.setWindowedMode(800, 600);
-        //// You can change these files; they are in lwjgl3/src/main/resources/ .
-        //// They can also be loaded from the root of assets/ .
+        // Estes arquivos podem ser trocados; ficam em lwjgl3/src/main/resources/ (ou na raiz de assets/).
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
         return configuration;
     }

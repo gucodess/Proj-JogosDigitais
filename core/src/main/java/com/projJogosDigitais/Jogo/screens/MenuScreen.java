@@ -12,14 +12,14 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.projJogosDigitais.Jogo.GameConfig;
 import com.projJogosDigitais.Jogo.Main;
 
-/** Tela de menu: titulo, selecao de dificuldade e inicio. */
+/** Tela de menu: título, seleção de dificuldade e início da partida. */
 public class MenuScreen extends ScreenAdapter {
     private final Main game;
     private final OrthographicCamera camera;
     private final Viewport viewport;
     private final GlyphLayout layout = new GlyphLayout();
 
-    private int difficulty = 1; // 0 Facil, 1 Normal, 2 Dificil
+    private int difficulty = 1; // 0 Fácil, 1 Normal, 2 Difícil
 
     public MenuScreen(Main game) {
         this.game = game;
@@ -28,6 +28,7 @@ public class MenuScreen extends ScreenAdapter {
     }
 
     private void handleInput() {
+        // Alterna a dificuldade com as setas (ou W/S).
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W)) {
             difficulty = (difficulty + GameConfig.DIFFICULTY_NAMES.length - 1) % GameConfig.DIFFICULTY_NAMES.length;
         }
@@ -43,6 +44,7 @@ public class MenuScreen extends ScreenAdapter {
         }
     }
 
+    /** Desenha um texto centralizado horizontalmente na altura y informada. */
     private void center(String text, float y, Color color) {
         game.font.setColor(color);
         layout.setText(game.font, text);
@@ -58,7 +60,7 @@ public class MenuScreen extends ScreenAdapter {
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
 
-        // Titulo
+        // Título
         game.fontBig.setColor(0f, 0.78f, 1f, 1f);
         layout.setText(game.fontBig, "BREAKOUT REHAB");
         game.fontBig.draw(game.batch, "BREAKOUT REHAB",

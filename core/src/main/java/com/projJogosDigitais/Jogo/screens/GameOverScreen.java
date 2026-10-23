@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.projJogosDigitais.Jogo.GameConfig;
 import com.projJogosDigitais.Jogo.Main;
 
-/** Tela de fim de jogo (vitoria ou derrota) com pontuacao. */
+/** Tela de fim de jogo (vitória ou derrota) com a pontuação final. */
 public class GameOverScreen extends ScreenAdapter {
     private final Main game;
     private final boolean won;
@@ -31,6 +31,7 @@ public class GameOverScreen extends ScreenAdapter {
         this.viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
     }
 
+    /** Desenha um texto centralizado usando a fonte indicada (grande ou padrão). */
     private void center(Object font, String text, float y) {
         if (font == game.fontBig) {
             layout.setText(game.fontBig, text);
@@ -49,6 +50,7 @@ public class GameOverScreen extends ScreenAdapter {
             return;
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            // Reinicia a partida na mesma dificuldade.
             game.setScreen(new GameScreen(game, difficulty));
             dispose();
             return;

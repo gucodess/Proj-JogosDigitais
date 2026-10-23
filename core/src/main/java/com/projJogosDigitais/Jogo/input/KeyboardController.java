@@ -4,8 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 /**
- * Controle por teclado (setas ou A/D) e tambem pelo mouse.
- * E o controle padrao e o fallback quando o dispositivo IoT nao esta presente.
+ * Controle por teclado (setas ou A/D) e também pelo mouse.
+ * É o controle padrão e o fallback quando o dispositivo IoT não está presente.
  */
 public class KeyboardController implements PaddleController {
 
@@ -13,7 +13,7 @@ public class KeyboardController implements PaddleController {
 
     @Override
     public float computeCenterX(float delta, float worldWidth, float currentCenterX, float paddleWidth) {
-        // Mouse/toque tem prioridade quando o botao esta pressionado.
+        // O mouse/toque tem prioridade quando o botão está pressionado.
         if (Gdx.input.isTouched()) {
             float worldX = Gdx.input.getX() * (worldWidth / Gdx.graphics.getWidth());
             return worldX;

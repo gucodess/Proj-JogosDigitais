@@ -1,11 +1,11 @@
 package com.projJogosDigitais.Jogo;
 
-/** Constantes globais do jogo (resolucao virtual e parametros de dificuldade). */
+/** Constantes globais do jogo (resolução virtual e parâmetros de dificuldade). */
 public final class GameConfig {
     public static final float WORLD_WIDTH = 800f;
     public static final float WORLD_HEIGHT = 600f;
 
-    // Dificuldade: indice 0 = Facil, 1 = Normal, 2 = Dificil
+    // Dificuldade: índice 0 = Fácil, 1 = Normal, 2 = Difícil
     public static final String[] DIFFICULTY_NAMES = { "Facil", "Normal", "Dificil" };
     public static final float[] PADDLE_WIDTH      = { 170f, 120f, 90f };
     public static final float[] BALL_SPEED        = { 320f, 400f, 500f };
