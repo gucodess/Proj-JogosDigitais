@@ -1,34 +1,37 @@
 package com.projJogosDigitais.Jogo;
 
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.projJogosDigitais.Jogo.screens.MenuScreen;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class Main extends ApplicationAdapter {
-    private SpriteBatch batch;
-    private Texture image;
+/**
+ * Breakout Rehab - ponto de entrada compartilhado por todas as plataformas.
+ * Mantem recursos globais (batch, shapes, fontes) e gerencia a troca de telas.
+ */
+public class Main extends Game {
+    public SpriteBatch batch;
+    public ShapeRenderer shapes;
+    public BitmapFont font;     // HUD
+    public BitmapFont fontBig;  // titulos
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
-    }
-
-    @Override
-    public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        batch.begin();
-        batch.draw(image, 140, 210);
-        batch.end();
+        shapes = new ShapeRenderer();
+        font = new BitmapFont();
+        fontBig = new BitmapFont();
+        fontBig.getData().setScale(2f);
+        setScreen(new MenuScreen(this));
     }
 
     @Override
     public void dispose() {
+        if (getScreen() != null) getScreen().dispose();
         batch.dispose();
-        image.dispose();
+        shapes.dispose();
+        font.dispose();
+        fontBig.dispose();
     }
 }
