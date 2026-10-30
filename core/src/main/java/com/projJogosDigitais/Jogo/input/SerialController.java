@@ -37,13 +37,28 @@ public class SerialController implements PaddleController {
 
     private boolean open() {
         try {
+            SerialPort[] all = SerialPort.getCommPorts();
+            System.out.println("[SerialController] Portas disponiveis: " + all.length);
+            for (SerialPort p : all) {
+                System.out.println("  - " + p.getSystemPortName() + " | " + p.getDescriptivePortName());
+            }
             SerialPort chosen = selectPort();
-            if (chosen == null) return false;
+            if (chosen == null) {
+                System.out.println("[SerialController] Nenhuma porta serial encontrada. O jogo usara o teclado.");
+                return false;
+            }
+            System.out.println("[SerialController] Porta escolhida: " + chosen.getSystemPortName()
+                    + " (" + chosen.getDescriptivePortName() + ")");
             chosen.setBaudRate(BAUD);
             chosen.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
-            if (!chosen.openPort()) return false;
+            if (!chosen.openPort()) {
+                System.out.println("[SerialController] NAO consegui abrir " + chosen.getSystemPortName()
+                        + ". A porta esta ocupada? (feche o Serial Monitor do Arduino IDE).");
+                return false;
+            }
             this.port = chosen;
             this.label = "Potenciometro " + chosen.getSystemPortName();
+            System.out.println("[SerialController] Porta " + chosen.getSystemPortName() + " aberta a " + BAUD + " baud.");
             startReader();
             return true;
         } catch (Throwable t) {
@@ -117,6 +132,9 @@ public class SerialController implements PaddleController {
     private void parseLine(String line) {
         try {
             int v = Integer.parseInt(line.trim());
+            if (!receiving) {
+                System.out.println("[SerialController] Recebendo dados do potenciometro (primeiro valor: " + v + ").");
+            }
             lastRaw.set(MathUtils.clamp(v, RAW_MIN, RAW_MAX));
             receiving = true;
         } catch (NumberFormatException ignore) {

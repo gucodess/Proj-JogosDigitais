@@ -47,6 +47,11 @@ run {
   //setIgnoreExitValue(true)
 
   if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
+
+  // Repassa -Dserial.port=COMx (se informado) para a aplicacao.
+  if (System.getProperty('serial.port') != null) {
+    systemProperty 'serial.port', System.getProperty('serial.port')
+  }
 }
 
 jar {
