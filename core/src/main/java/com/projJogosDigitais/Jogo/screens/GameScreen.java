@@ -17,7 +17,7 @@ import com.projJogosDigitais.Jogo.Main;
 import com.projJogosDigitais.Jogo.entities.Ball;
 import com.projJogosDigitais.Jogo.entities.Brick;
 import com.projJogosDigitais.Jogo.entities.Paddle;
-import com.projJogosDigitais.Jogo.input.KeyboardController;
+import com.projJogosDigitais.Jogo.input.HybridController;
 import com.projJogosDigitais.Jogo.input.PaddleController;
 
 /** Tela principal de jogo: física, colisões, pontuação e vidas. */
@@ -52,7 +52,8 @@ public class GameScreen extends ScreenAdapter {
         this.difficulty = difficulty;
         this.camera = new OrthographicCamera();
         this.viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
-        this.controller = new KeyboardController();
+        // Potenciometro quando conectado; teclado/mouse como fallback automatico.
+        this.controller = new HybridController();
 
         float pw = GameConfig.PADDLE_WIDTH[difficulty];
         this.ballSpeed = GameConfig.BALL_SPEED[difficulty];
@@ -229,6 +230,9 @@ public class GameScreen extends ScreenAdapter {
         game.font.setColor(0.6f, 0.71f, 1f, 1f);
         game.font.draw(game.batch, "FASE: " + GameConfig.DIFFICULTY_NAMES[difficulty],
                 GameConfig.WORLD_WIDTH / 2f - 50f, GameConfig.WORLD_HEIGHT - 12f);
+        // Mostra o controle ativo (potenciometro ou teclado).
+        game.font.setColor(0.55f, 0.6f, 0.72f, 1f);
+        game.font.draw(game.batch, "Controle: " + controller.statusLabel(), 20f, 24f);
 
         if (ball.stuck) {
             game.font.setColor(0.8f, 0.82f, 0.9f, 1f);
