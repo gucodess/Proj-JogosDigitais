@@ -3,6 +3,7 @@ package com.projJogosDigitais.Jogo.input;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortTimeoutException;
 
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,7 +51,7 @@ public class SerialController implements PaddleController {
             System.out.println("[SerialController] Porta escolhida: " + chosen.getSystemPortName()
                     + " (" + chosen.getDescriptivePortName() + ")");
             chosen.setBaudRate(BAUD);
-            chosen.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
+            // Timeout 0 = read() bloqueia ate chegar dado (nunca dispara SerialPortTimeoutException\n            // nas pausas de 20ms entre leituras do Arduino). dispose()/closePort() desbloqueia.\n            chosen.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 0, 0);
             if (!chosen.openPort()) {
                 System.out.println("[SerialController] NAO consegui abrir " + chosen.getSystemPortName()
                         + ". A porta esta ocupada? (feche o Serial Monitor do Arduino IDE).");
@@ -101,26 +102,32 @@ public class SerialController implements PaddleController {
                 StringBuilder sb = new StringBuilder();
                 byte[] buf = new byte[256];
                 InputStream in = port.getInputStream();
-                try {
+                while (running) {
                     int n;
-                    while (running && (n = in.read(buf)) >= 0) {
-                        for (int i = 0; i < n; i++) {
-                            char ch = (char) (buf[i] & 0xFF);
-                            if (ch == '\n' || ch == '\r') {
-                                if (sb.length() > 0) {
-                                    parseLine(sb.toString());
-                                    sb.setLength(0);
-                                }
-                            } else {
-                                sb.append(ch);
-                                if (sb.length() > 16) sb.setLength(0); // descarta linha anomala
-                            }
+                    try {
+                        n = in.read(buf);
+                    } catch (SerialPortTimeoutException timeout) {
+                        // Sem dado nova janela de leitura: NAO e erro, apenas continua lendo.
+                        continue;
+                    } catch (Throwable t) {
+                        if (running) {
+                            Gdx.app.error("SerialController", "Erro na leitura serial", t);
+                            t.printStackTrace();
                         }
+                        break;
                     }
-                } catch (Throwable t) {
-                    if (running) {
-                        Gdx.app.error("SerialController", "Erro na leitura serial", t);
-                        t.printStackTrace();
+                    if (n < 0) break; // fim de stream (porta fechada)
+                    for (int i = 0; i < n; i++) {
+                        char ch = (char) (buf[i] & 0xFF);
+                        if (ch == '\n' || ch == '\r') {
+                            if (sb.length() > 0) {
+                                parseLine(sb.toString());
+                                sb.setLength(0);
+                            }
+                        } else {
+                            sb.append(ch);
+                            if (sb.length() > 16) sb.setLength(0); // descarta linha anomala
+                        }
                     }
                 }
             }
